@@ -37,14 +37,14 @@ ASSASSINATION_STATS = \
 FIREBALL_STAT = \
     ('Masters of Fire',)
 
-TOTAL_SCORE_RATIOS = {
-    'Mastery': (MASTERY_STATS, 25),
-    'Ops': (OPS_STATS, 35),
-    'Theft': (THEFT_STATS, 10),
-    'Blackops': (BLACKOP_STATS, 10),
-    'Assassination': (ASSASSINATION_STATS, 5),
-    'Fireball': (FIREBALL_STAT, 10)
-}
+# TOTAL_SCORE_RATIOS = {
+#     'Mastery': (MASTERY_STATS, 25),
+#     'Ops': (OPS_STATS, 35),
+#     'Theft': (THEFT_STATS, 10),
+#     'Blackops': (BLACKOP_STATS, 10),
+#     'Assassination': (ASSASSINATION_STATS, 5),
+#     'Fireball': (FIREBALL_STAT, 10)
+# }
 
 
 def load_scoring_ratios(filename: str):
