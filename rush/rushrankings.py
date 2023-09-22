@@ -129,18 +129,18 @@ class Player:
         return ','.join(sorted_scores)
 
 
-def multiple_round_scores(ratios: dict, round_numbers: list | tuple, out_dir: str):
+def multiple_round_scores(ratio_versions_per_round: dict, round_numbers: list | tuple, out_dir: str):
     player_scores = dict()
     for nr in round_numbers:
         print(f'== ROUND {nr} ==')
-        blop_scores = blop_scores_for_round(ratios, nr)
+        blop_scores = blop_scores_for_round(ratio_versions_per_round[nr], nr)
         for player, score in blop_scores:
             if player not in player_scores:
                 player_scores[player] = Player(player, round_numbers)
             player_scores[player].add_round_score(nr, score)
     top_blop_sorted = sorted(player_scores.values(), key=lambda e: e.total_score, reverse=True)
 
-    with open(f'{out_dir}/Top (Black) Oppers Last {len(round_numbers)} Rounds - full.txt', 'w') as f:
+    with open(f'{out_dir}/R{round_numbers[0]} Last {len(round_numbers)} Rounds - full.txt', 'w') as f:
         for player in top_blop_sorted:
             f.write(f"{player.name},{player.total_score},{player.scores_text()}\n")
 
