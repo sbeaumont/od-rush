@@ -39,13 +39,13 @@ class Ranking:
         # If it's not a number or letter, turn into underscore
         name = re.sub('[^A-Za-z0-9]', '_', self.dominion)
         # remove multiple underscores in a row
-        name = re.sub('[_]{2,}', '_', name)
+        name = re.sub('_{2,}', '_', name)
         # remove underscores at the end
         name = re.sub('_*$', '', name)
         self.dominion_link_name = f"Round_{self.round}_{name}"
 
 
-def get_page(page_url: str) -> BeautifulSoup:
+def get_page(page_url: str) -> BeautifulSoup | None:
     """Utility function to load a URL into a BeautifulSoup instance."""
     page = requests.get(page_url)
     if page.status_code == 200:
