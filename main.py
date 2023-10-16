@@ -1,17 +1,16 @@
+"""
+Scoring system to calculate the Rush Rankings.
+
+Author: Serge Beaumont
+"""
+
 from rush.rushrankings import load_scoring_ratios, round_scores, multiple_round_scores
 from config import OUT_DIR
 
-ROUND_NUMBER = 52
-ALL_BLOP_ROUNDS = (52, 51, 49, 48, 47, 45, 44, 42, 41, 39, 38, 36, 35, 33, 30, 28, 26)
-LAST_FIVE_ROUNDS = ALL_BLOP_ROUNDS[:5]
-LAST_TEN_ROUNDS = ALL_BLOP_ROUNDS[:10]
-BETA_ROUNDS = (24, 22, 20, 19)
-
 v1_ratios = load_scoring_ratios('rush/rush_rankings_v1.json')
 v2_ratios = load_scoring_ratios('rush/rush_rankings_v2.json')
-rounds_to_calculate = LAST_TEN_ROUNDS
 
-ratio_versions_per_round = {
+ALL_BLOP_ROUNDS = {
     52: v2_ratios,
     51: v1_ratios,
     49: v1_ratios,
@@ -31,11 +30,27 @@ ratio_versions_per_round = {
     26: v1_ratios
 }
 
-print("Detailed scores for current round")
-round_scores(v2_ratios, ROUND_NUMBER, OUT_DIR, with_components=True)
+ALL_ROUNDS: list[int] = sorted(ALL_BLOP_ROUNDS.keys(), reverse=True)
+LAST_FIVE_ROUNDS = ALL_ROUNDS[:5]
+LAST_TEN_ROUNDS = ALL_ROUNDS[:10]
+BETA_ROUNDS = (24, 22, 20, 19)
 
-print("Separate scores for multiple blop rounds")
-multiple_round_scores(ratio_versions_per_round, rounds_to_calculate, OUT_DIR)
 
-print("Lifetime scores")
-multiple_round_scores(ratio_versions_per_round, ALL_BLOP_ROUNDS, OUT_DIR)
+def single_round(round_number: int):
+    print(f"Detailed scores for round {round_number}")
+    round_scores(ALL_BLOP_ROUNDS[round_number], round_number, OUT_DIR, with_components=True)
+
+
+def main(rounds_to_calculate: list[int]):
+    single_round(rounds_to_calculate[0])
+
+    print("Separate scores for multiple blop rounds")
+    multiple_round_scores(ALL_BLOP_ROUNDS, rounds_to_calculate, OUT_DIR)
+
+    print("Lifetime scores")
+    multiple_round_scores(ALL_BLOP_ROUNDS, ALL_ROUNDS, OUT_DIR)
+
+
+if __name__ == '__main__':
+    # main(LAST_TEN_ROUNDS)
+    single_round(53)

@@ -1,5 +1,5 @@
 """
-Generator for the OpenDominion Round Top 100     Wiki pages.
+Generator for the OpenDominion Round Top 100 Wiki pages.
 """
 
 import re

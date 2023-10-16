@@ -13,6 +13,8 @@ from typing import Callable
 
 from config import VALHALLA_URL
 
+NOBODY_PLAYER = 'Nobody (Empty Categories)'
+
 
 @dataclass
 class Ranking:
@@ -43,11 +45,18 @@ def parse_entries_from_page(soup: BeautifulSoup) -> dict[str, Ranking]:
     """Pull rankings out of a stat page into a dict{player name: Ranking}."""
     results = dict()
     try:
+        # Rare case (happens in test rounds) that no one scored for a category.
+        box_body = soup.find('div', class_='box-body').find_all('p')
+        if len(box_body) > 0 and box_body[0].text.strip() == 'No records found.':
+            print('No records found.')
+            return {NOBODY_PLAYER: Ranking(0, NOBODY_PLAYER, 0)}
+
         for line in soup.tbody.find_all('tr'):
             entry = [child.text.strip() for child in line.find_all('td')]
             ranking = Ranking(int(entry[0]), entry[2], int(entry[-1].replace(',', '')))
             results[ranking.player] = ranking
     except AttributeError:
+        # If anything goes wrong, it's likely the page that changed. Print it for analysis.
         print(soup.contents)
         raise
     return results
@@ -73,10 +82,17 @@ def load_stats(round_number: int, stat_filter: Callable[[str], int]) -> dict:
     for name, url in stat_pages.items():
         page = get_page(url)
         if page:
-            print('Loaded', name)
+            print('Loading', name)
             page_stats = parse_entries_from_page(page)
-            feature_scaled_scores(page_stats)
-            result[name] = page_stats
+            if page_stats:
+                feature_scaled_scores(page_stats)
+                result[name] = page_stats
+            else:
+                print(f'No stats for {name}')
         else:
             print("Warning: could not load page", url)
+
+    # if NOBODY_PLAYER in result:
+    #     del result[NOBODY_PLAYER]
+
     return result
