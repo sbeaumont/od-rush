@@ -11,6 +11,7 @@ v1_ratios = load_scoring_ratios('rush/rush_rankings_v1.json')
 v2_ratios = load_scoring_ratios('rush/rush_rankings_v2.json')
 
 ALL_BLOP_ROUNDS = {
+    54: v2_ratios,
     52: v2_ratios,
     51: v1_ratios,
     49: v1_ratios,
@@ -52,5 +53,5 @@ def main(rounds_to_calculate: list[int]):
 
 
 if __name__ == '__main__':
-    # main(LAST_TEN_ROUNDS)
-    single_round(53)
+    main(LAST_TEN_ROUNDS)
+    # single_round(54)

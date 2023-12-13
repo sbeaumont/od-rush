@@ -8,10 +8,10 @@ from bs4 import BeautifulSoup
 from dataclasses import dataclass, asdict, field
 from datetime import datetime
 
-ALL_REAL_ROUNDS = (52, 51, 49, 48, 47, 45, 44, 42, 41, 39, 38, 36, 35, 33, 30, 28, 26)
+ALL_REAL_ROUNDS = (54, 52, 51, 49, 48, 47, 45, 44, 42, 41, 39, 38, 36, 35, 33, 30, 28, 26)
 ROUND_URL_NUMBER = ALL_REAL_ROUNDS[0]
 URL = f"https://www.opendominion.net/valhalla/round/{ROUND_URL_NUMBER}/largest-dominions"
-ROUND_NUMBER = 36
+ROUND_NUMBER = 37
 
 WIKI_TABLE = """{{| class="wikitable"
 |- ! Rank !! Dominion Name !! Player !! Land Size
