@@ -104,6 +104,7 @@ def round_scores(ratios: dict, round_number: int, out_dir: str, with_components=
     with open(f'{out_dir}/Top (Black) Oppers Round {round_number}{" (Comps)" if with_components else ""}.txt', 'w') as f:
         if with_components:
             print(top_blop[0][2].keys())
+            print([ratios[c][1] for c in top_blop[0][2].keys()])
         for p in top_blop:
             if with_components:
                 f.write(f"{p[0]}, {p[1]}, {', '.join([str(v) for v in p[2].values()])}\n")
@@ -122,6 +123,10 @@ class Player:
     @property
     def total_score(self):
         return round(sum(self.round_scores.values()), 3)
+
+    @property
+    def average_score(self):
+        return round(self.total_score / len(self.round_scores), 3)
 
     def scores_text(self):
         nrs = sorted(self.round_scores.keys(), reverse=True)
@@ -142,5 +147,5 @@ def multiple_round_scores(ratio_versions_per_round: dict, round_numbers: list | 
 
     with open(f'{out_dir}/R{round_numbers[0]} Last {len(round_numbers)} Rounds - full.txt', 'w') as f:
         for player in top_blop_sorted:
-            f.write(f"{player.name},{player.total_score},{player.scores_text()}\n")
+            f.write(f"{player.name},{player.total_score},{player.average_score},{player.scores_text()}\n")
 

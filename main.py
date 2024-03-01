@@ -9,8 +9,10 @@ from config import OUT_DIR
 
 v1_ratios = load_scoring_ratios('rush/rush_rankings_v1.json')
 v2_ratios = load_scoring_ratios('rush/rush_rankings_v2.json')
+v3_ratios = load_scoring_ratios('rush/rush_rankings_v3.2.json')
 
 ALL_BLOP_ROUNDS = {
+    56: v3_ratios,
     54: v2_ratios,
     52: v2_ratios,
     51: v1_ratios,
