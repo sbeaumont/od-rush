@@ -7,11 +7,11 @@ import requests
 from bs4 import BeautifulSoup
 from dataclasses import dataclass, asdict, field
 from datetime import datetime
+from config import LAST_ROUND, round_number_of_round_id
 
-ALL_REAL_ROUNDS = (54, 52, 51, 49, 48, 47, 45, 44, 42, 41, 39, 38, 36, 35, 33, 30, 28, 26)
-ROUND_URL_NUMBER = ALL_REAL_ROUNDS[0]
-URL = f"https://www.opendominion.net/valhalla/round/{ROUND_URL_NUMBER}/largest-dominions"
-ROUND_NUMBER = 37
+
+URL = f"https://www.opendominion.net/valhalla/round/{LAST_ROUND}/largest-dominions"
+
 
 WIKI_TABLE = """{{| class="wikitable"
 |- ! Rank !! Dominion Name !! Player !! Land Size
@@ -65,7 +65,7 @@ def parse_entries_from_page(soup: BeautifulSoup) -> dict[str, Ranking]:
                               entry[2],
                               int(entry[-1].replace(',', '')),
                               int(entry[4]),
-                              ROUND_NUMBER)
+                              round_number_of_round_id(LAST_ROUND))
             results[ranking.player] = ranking
     except AttributeError:
         print(soup.contents)
@@ -85,7 +85,7 @@ def main():
     joined_lines = '\n'.join(lines)
     page_contents = WIKI_TABLE.format(joined_lines)
 
-    with open(f"top_100_round_{ROUND_NUMBER}.txt", 'w') as f:
+    with open(f"top_100_round_{round_number_of_round_id(LAST_ROUND)}.txt", 'w') as f:
         f.write(page_contents)
     print(page_contents)
 

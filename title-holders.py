@@ -1,8 +1,7 @@
 from rush.rankingscraper import load_stats
-from config import OUT_DIR
+from config import OUT_DIR, LAST_ROUND
 
 EXCLUDE_STATS = ['Realm', 'Pack']
-ROUND_NUMBER = 54
 
 
 def to_include(stat_name: str) -> bool:
@@ -12,8 +11,8 @@ def to_include(stat_name: str) -> bool:
     return True
 
 
-def main():
-    stats = load_stats(ROUND_NUMBER, to_include)
+def main(round_number: int) -> None:
+    stats = load_stats(round_number, to_include)
 
     title_holders = dict()
     for stat_name, rankings in stats.items():
@@ -21,11 +20,11 @@ def main():
         stat_title_holders = [r for r in rankings.values() if r.score == max_score]
         title_holders[stat_name] = stat_title_holders
 
-    with open(f'{OUT_DIR}/Title Holders Round {ROUND_NUMBER}.txt', 'w') as f:
+    with open(f'{OUT_DIR}/Title Holders Round {round_number}.txt', 'w') as f:
         for stat, holders in title_holders.items():
             for player in holders:
                 f.write(f"{stat},{player.player},{player.score}\n")
 
 
 if __name__ == '__main__':
-    main()
+    main(LAST_ROUND)

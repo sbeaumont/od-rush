@@ -47,14 +47,9 @@ FIREBALL_STAT = \
 # }
 
 
-def load_scoring_ratios(filename: str):
-    with open(filename) as f:
-        return json.load(f)
-
-
 def is_blop_stat(stat_name: str) -> bool:
     """Used to filter the relevant rankings in the scraper."""
-    blop_keywords = ['Wizard', 'Spies', 'Thieves', 'Masters', 'Saboteurs', 'Snare', 'Spy', 'Assassins']
+    blop_keywords = ['Wizard', 'Spies', 'Thieves', 'Masters', 'Saboteurs', 'Snare', 'Spy', 'Assassins', 'Bounties']
     for kw in blop_keywords:
         if kw in stat_name:
             return True

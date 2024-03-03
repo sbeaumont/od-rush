@@ -4,14 +4,17 @@
       "Most Masterful Spies",
       "Most Masterful Wizards"
     ],
-    20
+    15,
+    "General prowess: weighted slightly less than previous versions since it's gained from all other categories, but is a good overall score."
   ],
   "Ops": [
     [
       "Most Successful Spies",
-      "Most Successful Wizards"
+      "Most Successful Wizards",
+      "Most Bounties Collected"
     ],
-    15
+    10,
+    "Honor the support nature of the blopper."
   ],
   "Theft": [
     [
@@ -21,7 +24,8 @@
       "Top Ore Thieves",
       "Top Gem Thieves"
     ],
-    15
+    15,
+    "Economic non-war damage."
   ],
   "Blackops": [
     [
@@ -30,7 +34,8 @@
       "Masters of Water",
       "Masters of Earth"
     ],
-    15
+    15,
+    "Economic non-war damage, but spammable."
   ],
   "War": [
     [
@@ -40,7 +45,8 @@
       "Top Snare Setters",
       "Top Saboteurs"
     ],
-    15
+    20,
+    "All the war arts. How good are you at war?"
   ],
   "Assassination": [
     [
@@ -50,12 +56,14 @@
       "Most Wizards Executed",
       "Top Spy Disbanders"
     ],
-    10
+    15,
+    "Killing stuff."
   ],
   "Fireball": [
     [
       "Masters of Fire"
     ],
-    10
+    10,
+    "The category to rule them all: the iconic blopper tool, feared by all. You don't fireball, you're not a blopper."
   ]
 }
