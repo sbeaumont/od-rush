@@ -5,13 +5,14 @@ Round
     Stat
         Ranking
 """
-
+import os.path
 from dataclasses import dataclass
 import requests
 from bs4 import BeautifulSoup
 from typing import Callable
+import pickle
 
-from config import VALHALLA_URL
+from config import VALHALLA_URL, CACHE_DIR
 
 NOBODY_PLAYER = 'Nobody (Empty Categories)'
 
@@ -24,7 +25,7 @@ class Ranking:
     fs_score: float = 0
 
 
-def get_page(page_url: str) -> BeautifulSoup:
+def get_page(page_url: str) -> BeautifulSoup | None:
     """Utility function to load a URL into a BeautifulSoup instance."""
     page = requests.get(page_url)
     if page.status_code == 200:
@@ -78,21 +79,25 @@ def load_stats(round_number: int, stat_filter: Callable[[str], int]) -> dict:
     stat_page_urls = get_stat_page_urls(round_number)
     stat_pages = {k: v for k, v in stat_page_urls.items() if stat_filter(k)}
 
-    result = dict()
-    for name, url in stat_pages.items():
-        page = get_page(url)
-        if page:
-            print('Loading', name)
-            page_stats = parse_entries_from_page(page)
-            if page_stats:
-                feature_scaled_scores(page_stats)
-                result[name] = page_stats
+    cache_file_name = f'{CACHE_DIR}/round_{round_number}.pickle'
+    if os.path.exists(cache_file_name):
+        print('Loading cached file', cache_file_name)
+        with open(cache_file_name, 'rb') as f:
+            result = pickle.load(f)
+    else:
+        result = dict()
+        for name, url in stat_pages.items():
+            page = get_page(url)
+            if page:
+                print('Loading', name)
+                page_stats = parse_entries_from_page(page)
+                if page_stats:
+                    feature_scaled_scores(page_stats)
+                    result[name] = page_stats
+                else:
+                    print(f'No stats for {name}')
             else:
-                print(f'No stats for {name}')
-        else:
-            print("Warning: could not load page", url)
-
-    # if NOBODY_PLAYER in result:
-    #     del result[NOBODY_PLAYER]
-
+                print("Warning: could not load page", url)
+        with open(cache_file_name, 'wb') as f:
+            pickle.dump(result, f)
     return result

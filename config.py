@@ -1,6 +1,7 @@
 import json
 
 OUT_DIR = './out'
+CACHE_DIR = './cache'
 OD_BASE = 'https://www.opendominion.net'
 VALHALLA_URL = f'{OD_BASE}/valhalla/round'
 
@@ -13,9 +14,12 @@ def load_scoring_ratios(filename: str):
 v1_ratios = load_scoring_ratios('rush/rush_rankings_v1.json')
 v2_ratios = load_scoring_ratios('rush/rush_rankings_v2.json')
 v3_ratios = load_scoring_ratios('rush/rush_rankings_v3.json')
+v4_ratios = load_scoring_ratios('rush/rush_rankings_v4.json')
 
 ALL_BLOP_ROUNDS = {
-    56: v3_ratios,
+    56: v4_ratios,
+    # 57: v4_ratios,
+    # 56: v3_ratios,
     54: v2_ratios,
     52: v2_ratios,
     51: v1_ratios,

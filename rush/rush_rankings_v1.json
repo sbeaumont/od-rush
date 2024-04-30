@@ -1,20 +1,22 @@
 {
-  "Mastery": [
-    [
+  "Mastery": {
+    "rankings": [
       "Most Masterful Spies",
       "Most Masterful Wizards"
     ],
-    25
-  ],
-  "Ops": [
-    [
+    "calculation": "average",
+    "weight": 25
+  },
+  "Ops": {
+    "rankings": [
       "Most Successful Spies",
       "Most Successful Wizards"
     ],
-    35
-  ],
-  "Theft": [
-    [
+    "calculation": "average",
+    "weight": 35
+  },
+  "Theft": {
+    "rankings": [
       "Top Platinum Thieves",
       "Top Food Thieves",
       "Top Lumber Thieves",
@@ -22,10 +24,11 @@
       "Top Ore Thieves",
       "Top Gem Thieves"
     ],
-    10
-  ],
-  "Blackops": [
-    [
+    "calculation": "average",
+    "weight": 10
+  },
+  "Blackops": {
+    "rankings": [
       "Masters of Plague",
       "Masters of Swarm",
       "Masters of Air",
@@ -34,10 +37,11 @@
       "Masters of Earth",
       "Top Snare Setters"
     ],
-    10
-  ],
-  "Assassination": [
-    [
+    "calculation": "average",
+    "weight": 10
+  },
+  "Assassination": {
+    "rankings": [
       "Most Spies Executed",
       "Top Saboteurs",
       "Top Magical Assassins",
@@ -45,12 +49,14 @@
       "Most Wizards Executed",
       "Top Spy Disbanders"
     ],
-    5
-  ],
-  "Fireball": [
-    [
+    "calculation": "average",
+    "weight": 5
+  },
+  "Fireball": {
+    "rankings": [
       "Masters of Fire"
     ],
-    10
-  ]
+    "calculation": "average",
+    "weight": 10
+  }
 }

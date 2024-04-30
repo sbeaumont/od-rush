@@ -21,30 +21,21 @@ __version__ = "1.0"
 import json
 from rush.rankingscraper import load_stats
 
-MASTERY_STATS = \
-    ('Most Masterful Spies', 'Most Masterful Wizards')
-OPS_STATS = \
-    ('Most Successful Spies', 'Most Successful Wizards')
-THEFT_STATS = \
-    ('Top Platinum Thieves', 'Top Food Thieves', 'Top Lumber Thieves',
-     'Top Mana Thieves', 'Top Ore Thieves', 'Top Gem Thieves')
-BLACKOP_STATS = \
-    ('Masters of Plague', 'Masters of Swarm', 'Masters of Air',
-     'Masters of Lightning', 'Masters of Water', 'Masters of Earth', 'Top Snare Setters')
-ASSASSINATION_STATS = \
-    ('Most Spies Executed', 'Top Saboteurs', 'Top Magical Assassins',
-     'Top Military Assassins', 'Most Wizards Executed', 'Top Spy Disbanders')
-FIREBALL_STAT = \
-    ('Masters of Fire',)
-
-# TOTAL_SCORE_RATIOS = {
-#     'Mastery': (MASTERY_STATS, 25),
-#     'Ops': (OPS_STATS, 35),
-#     'Theft': (THEFT_STATS, 10),
-#     'Blackops': (BLACKOP_STATS, 10),
-#     'Assassination': (ASSASSINATION_STATS, 5),
-#     'Fireball': (FIREBALL_STAT, 10)
-# }
+# MASTERY_STATS = \
+#     ('Most Masterful Spies', 'Most Masterful Wizards')
+# OPS_STATS = \
+#     ('Most Successful Spies', 'Most Successful Wizards')
+# THEFT_STATS = \
+#     ('Top Platinum Thieves', 'Top Food Thieves', 'Top Lumber Thieves',
+#      'Top Mana Thieves', 'Top Ore Thieves', 'Top Gem Thieves')
+# BLACKOP_STATS = \
+#     ('Masters of Plague', 'Masters of Swarm', 'Masters of Air',
+#      'Masters of Lightning', 'Masters of Water', 'Masters of Earth', 'Top Snare Setters')
+# ASSASSINATION_STATS = \
+#     ('Most Spies Executed', 'Top Saboteurs', 'Top Magical Assassins',
+#      'Top Military Assassins', 'Most Wizards Executed', 'Top Spy Disbanders')
+# FIREBALL_STAT = \
+#     ('Masters of Fire',)
 
 
 def is_blop_stat(stat_name: str) -> bool:
@@ -67,11 +58,22 @@ def score_components(ratios: dict, stats: dict, name: str) -> dict:
     """Score a specific player on all components of the scoring system for the round."""
     result = dict()
     for component_name, score_component in ratios.items():
-        total = 0
-        for stat_name in score_component[0]:
-            if name in stats[stat_name]:
-                total += stats[stat_name][name].fs_score
-        component_score = total / len(score_component[0]) * score_component[1]
+        component_score = 0
+        if score_component['calculation'] == 'average':
+            total = 0
+            for stat_name in score_component['rankings']:
+                if name in stats[stat_name]:
+                    total += stats[stat_name][name].fs_score
+            component_score = total / len(score_component['rankings']) * score_component['weight']
+        elif score_component['calculation'] == 'best of 3':
+            ranking_scores = list()
+            for stat_name in score_component['rankings']:
+                if name in stats[stat_name]:
+                    ranking_scores.append(stats[stat_name][name].fs_score)
+            best_scores = sorted(ranking_scores, reverse=True)[:3]
+            component_score = sum(best_scores) / 3 * score_component['weight']
+        else:
+            raise Exception(f"Unknown calculation method: {score_component['calculation']}")
         result[component_name] = component_score
     return result
 
@@ -99,7 +101,7 @@ def round_scores(ratios: dict, round_number: int, out_dir: str, with_components=
     with open(f'{out_dir}/Top (Black) Oppers Round {round_number}{" (Comps)" if with_components else ""}.txt', 'w') as f:
         if with_components:
             print(top_blop[0][2].keys())
-            print([ratios[c][1] for c in top_blop[0][2].keys()])
+            print([ratios[c]['weight'] for c in top_blop[0][2].keys()])
         for p in top_blop:
             if with_components:
                 f.write(f"{p[0]}, {p[1]}, {', '.join([str(v) for v in p[2].values()])}\n")
