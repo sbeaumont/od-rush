@@ -65,7 +65,7 @@ def score_components(ratios: dict, stats: dict, name: str) -> dict:
                 if name in stats[stat_name]:
                     total += stats[stat_name][name].fs_score
             component_score = total / len(score_component['rankings']) * score_component['weight']
-        elif score_component['calculation'] == 'best of 3':
+        elif score_component['calculation'] == 'average of best 3':
             ranking_scores = list()
             for stat_name in score_component['rankings']:
                 if name in stats[stat_name]:
