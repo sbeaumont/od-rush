@@ -74,13 +74,13 @@ def feature_scaled_scores(rankings: dict, low=0, high=1):
             r.fs_score = 1
 
 
-def load_stats(round_number: int, stat_filter: Callable[[str], int]) -> dict:
+def load_stats(round_number: int, stat_filter: Callable[[str], int], use_cache=True) -> dict:
     """Pull all the Valhalla ranking pages and returns all the relevant ranking lists for a specific round."""
     stat_page_urls = get_stat_page_urls(round_number)
     stat_pages = {k: v for k, v in stat_page_urls.items() if stat_filter(k)}
 
     cache_file_name = f'{CACHE_DIR}/round_{round_number}.pickle'
-    if os.path.exists(cache_file_name):
+    if os.path.exists(cache_file_name) and use_cache:
         print('Loading cached file', cache_file_name)
         with open(cache_file_name, 'rb') as f:
             result = pickle.load(f)
@@ -98,6 +98,7 @@ def load_stats(round_number: int, stat_filter: Callable[[str], int]) -> dict:
                     print(f'No stats for {name}')
             else:
                 print("Warning: could not load page", url)
-        with open(cache_file_name, 'wb') as f:
-            pickle.dump(result, f)
+        if use_cache:
+            with open(cache_file_name, 'wb') as f:
+                pickle.dump(result, f)
     return result

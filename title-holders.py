@@ -12,7 +12,7 @@ def to_include(stat_name: str) -> bool:
 
 
 def main(round_number: int) -> None:
-    stats = load_stats(round_number, to_include)
+    stats = load_stats(round_number, to_include, use_cache=False)
 
     title_holders = dict()
     for stat_name, rankings in stats.items():
