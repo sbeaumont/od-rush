@@ -11,31 +11,16 @@ This script scrapes the Valhalla pages of the OpenDominion website (opendominion
 and builds the scores and rankings based on the information found there.
 
 The V1 ranking set is used until Round 35 (technical number 51),
-the V2 ranking set is active from Round 36 onward.
+the V2 ranking set is used on Round 36
+The V3 ranking set is used on Round 37 and 38
+The V4 ranking set is used on Round 39.
 """
 
 __author__ = "Serge Beaumont (AgFx)"
 __credits__ = ["Rush", ]
 __version__ = "1.0"
 
-import json
 from rush.rankingscraper import load_stats
-
-# MASTERY_STATS = \
-#     ('Most Masterful Spies', 'Most Masterful Wizards')
-# OPS_STATS = \
-#     ('Most Successful Spies', 'Most Successful Wizards')
-# THEFT_STATS = \
-#     ('Top Platinum Thieves', 'Top Food Thieves', 'Top Lumber Thieves',
-#      'Top Mana Thieves', 'Top Ore Thieves', 'Top Gem Thieves')
-# BLACKOP_STATS = \
-#     ('Masters of Plague', 'Masters of Swarm', 'Masters of Air',
-#      'Masters of Lightning', 'Masters of Water', 'Masters of Earth', 'Top Snare Setters')
-# ASSASSINATION_STATS = \
-#     ('Most Spies Executed', 'Top Saboteurs', 'Top Magical Assassins',
-#      'Top Military Assassins', 'Most Wizards Executed', 'Top Spy Disbanders')
-# FIREBALL_STAT = \
-#     ('Masters of Fire',)
 
 
 def is_blop_stat(stat_name: str) -> bool:
