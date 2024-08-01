@@ -13,7 +13,7 @@ and builds the scores and rankings based on the information found there.
 The V1 ranking set is used until Round 35 (technical number 51),
 the V2 ranking set is used on Round 36
 The V3 ranking set is used on Round 37 and 38
-The V4 ranking set is used on Round 39.
+The V4 ranking set is used on Round 39+.
 """
 
 __author__ = "Serge Beaumont (AgFx)"
