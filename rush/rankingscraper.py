@@ -63,19 +63,63 @@ def parse_entries_from_page(soup: BeautifulSoup) -> dict[str, Ranking]:
     return results
 
 
-def feature_scaled_scores(rankings: dict, low=0, high=1):
+def feature_scaled_scores(rankings: dict, low=0, high=1, method='linear'):
     """Compress a series of scores into a range from 0 (lowest score) to 1 (highest score)."""
+    import math
+
     max_score = max([r.score for r in rankings.values()])
     min_score = min([r.score for r in rankings.values()])
-    for r in rankings.values():
-        if max_score - min_score > 0:
-            r.fs_score = low + ((r.score - min_score) * (high - low)) / (max_score - min_score)
-        else:
-            r.fs_score = 1
+
+    if method == 'log':
+        # Log scaling with diminishing returns
+        for r in rankings.values():
+            if max_score - min_score > 0:
+                # Use log(1 + score) to handle zero scores gracefully
+                log_score = math.log(1 + r.score - min_score)
+                log_max = math.log(1 + max_score - min_score)
+                r.fs_score = low + (log_score * (high - low)) / log_max
+            else:
+                r.fs_score = 1
+    else:
+        # Original linear scaling
+        for r in rankings.values():
+            if max_score - min_score > 0:
+                r.fs_score = low + ((r.score - min_score) * (high - low)) / (max_score - min_score)
+            else:
+                r.fs_score = 1
+
+def null_filter(stat_name: str) -> bool:
+    return True
 
 
-def load_stats(round_number: int, stat_filter: Callable[[str], int], use_cache=True) -> dict:
+def get_all_land_sizes(round_number: int) -> dict:
+    """Get land sizes for all players from cached stats.
+
+    Args:
+        round_number: The round number to get land sizes for
+
+    Returns:
+        Dict of {player_name: land_size}
+    """
+    # Load all stats (should use cache if available)
+    all_stats = load_stats(round_number)
+
+    land_sizes = {}
+
+    # Extract land data from all "Largest" stats in cached data
+    for stat_name, rankings in all_stats.items():
+        if 'Largest' in stat_name and 'Harem' not in stat_name:
+            for player_name, ranking in rankings.items():
+                land_sizes[player_name] = ranking.score
+
+    return land_sizes
+
+
+def load_stats(round_number: int, stat_filter: Callable[[str], int]=None, use_cache=True, scaling_methods: dict = None) -> dict:
     """Pull all the Valhalla ranking pages and returns all the relevant ranking lists for a specific round."""
+    if not stat_filter:
+        stat_filter = null_filter
+
     stat_page_urls = get_stat_page_urls(round_number)
     stat_pages = {k: v for k, v in stat_page_urls.items() if stat_filter(k)}
 
@@ -92,7 +136,6 @@ def load_stats(round_number: int, stat_filter: Callable[[str], int], use_cache=T
                 print('Loading', name)
                 page_stats = parse_entries_from_page(page)
                 if page_stats:
-                    feature_scaled_scores(page_stats)
                     result[name] = page_stats
                 else:
                     print(f'No stats for {name}')
@@ -101,4 +144,13 @@ def load_stats(round_number: int, stat_filter: Callable[[str], int], use_cache=T
         if use_cache:
             with open(cache_file_name, 'wb') as f:
                 pickle.dump(result, f)
+
+    # Apply feature scaling after loading from cache or fresh data
+    for stat_name, rankings in result.items():
+        if rankings:  # Skip empty rankings
+            method = 'linear'  # default
+            if scaling_methods and stat_name in scaling_methods:
+                method = scaling_methods[stat_name]
+            feature_scaled_scores(rankings, method=method)
+
     return result

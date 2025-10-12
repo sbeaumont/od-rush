@@ -7,7 +7,7 @@ import requests
 from bs4 import BeautifulSoup
 from dataclasses import dataclass, asdict, field
 from datetime import datetime
-from config import LAST_ROUND, round_number_of_round_id
+from config import OUT_DIR, LAST_ROUND, round_number_of_round_id
 
 
 URL = f"https://www.opendominion.net/valhalla/round/{LAST_ROUND}/largest-dominions"
@@ -85,7 +85,7 @@ def main():
     joined_lines = '\n'.join(lines)
     page_contents = WIKI_TABLE.format(joined_lines)
 
-    with open(f"top_100_round_{round_number_of_round_id(LAST_ROUND)}.txt", 'w') as f:
+    with open(f"{OUT_DIR}/top_100_round_{round_number_of_round_id(LAST_ROUND)}.txt", 'w') as f:
         f.write(page_contents)
     print(page_contents)
 

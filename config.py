@@ -15,8 +15,17 @@ v1_ratios = load_scoring_ratios('rush/rush_rankings_v1.json')
 v2_ratios = load_scoring_ratios('rush/rush_rankings_v2.json')
 v3_ratios = load_scoring_ratios('rush/rush_rankings_v3.json')
 v4_ratios = load_scoring_ratios('rush/rush_rankings_v4.json')
+v5_ratios = load_scoring_ratios('rush/rush_rankings_v5.json')
+v6_ratios = load_scoring_ratios('rush/rush_rankings_v6.json')
 
 ALL_BLOP_ROUNDS = {
+    # 69: v6_ratios, # Round 46
+    # 67: v5_ratios, # Round 45
+    67: v6_ratios, # Round 45
+    66: v4_ratios, # Round 44
+    64: v4_ratios, # Round 43
+    63: v4_ratios, # Round 42
+    61: v4_ratios, # Round 41
     60: v4_ratios,
     58: v4_ratios,
     56: v3_ratios,
@@ -52,4 +61,4 @@ def round_number_of_round_id(round_id: int) -> int:
 
 
 if __name__ == '__main__':
-    print(round_number_of_round_id(56))
+    print(round_number_of_round_id(57))

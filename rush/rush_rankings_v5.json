@@ -1,0 +1,77 @@
+{
+  "Mastery": {
+    "rankings": [
+      "Most Masterful Spies",
+      "Most Masterful Wizards"
+    ],
+    "calculation": "average",
+    "weight": 15,
+    "description": "General prowess: weighted slightly less than previous versions since it's gained from all other categories, but is a good overall score."
+  },
+  "Ops": {
+    "rankings": [
+      "Most Successful Spies",
+      "Most Successful Wizards",
+      "Most Bounties Collected"
+    ],
+    "calculation": "average",
+    "weight": 10,
+    "description": "Honor the support nature of the blopper."
+  },
+  "Theft": {
+    "rankings": [
+      "Top Platinum Thieves",
+      "Top Food Thieves",
+      "Top Lumber Thieves",
+      "Top Ore Thieves",
+      "Top Gem Thieves"
+    ],
+    "calculation": "average of best 3",
+    "weight": 15,
+    "description": "Economic non-war damage."
+  },
+  "Blackops": {
+    "rankings": [
+      "Masters of Plague",
+      "Masters of Swarm",
+      "Masters of Water",
+      "Masters of Earth"
+    ],
+    "calculation": "average",
+    "weight": 15,
+    "description": "Economic non-war damage, but spammable."
+  },
+  "War": {
+    "rankings": [
+      "Top Mana Thieves",
+      "Masters of Air",
+      "Masters of Lightning",
+      "Top Snare Setters",
+      "Top Saboteurs",
+      "Masters of Chaos"
+    ],
+    "calculation": "average of best 5",
+    "weight": 20,
+    "description": "All the war arts. How good are you at war?"
+  },
+  "Assassination": {
+    "rankings": [
+      "Most Spies Executed",
+      "Top Magical Assassins",
+      "Top Military Assassins",
+      "Most Wizards Executed",
+      "Top Spy Disbanders"
+    ],
+    "calculation": "average",
+    "weight": 15,
+    "description": "Killing stuff."
+  },
+  "Fireball": {
+    "rankings": [
+      "Masters of Fire"
+    ],
+    "calculation": "average",
+    "weight": 10,
+    "description": "The category to rule them all: the iconic blopper tool, feared by all. You don't fireball, you're not a blopper."
+  }
+}
