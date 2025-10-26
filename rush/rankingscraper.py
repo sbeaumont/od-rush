@@ -71,13 +71,34 @@ def feature_scaled_scores(rankings: dict, low=0, high=1, method='linear'):
     min_score = min([r.score for r in rankings.values()])
 
     if method == 'log':
-        # Log scaling with diminishing returns
+        # Log scaling with diminishing returns - compresses top outliers
         for r in rankings.values():
             if max_score - min_score > 0:
                 # Use log(1 + score) to handle zero scores gracefully
                 log_score = math.log(1 + r.score - min_score)
                 log_max = math.log(1 + max_score - min_score)
                 r.fs_score = low + (log_score * (high - low)) / log_max
+            else:
+                r.fs_score = 1
+    elif method == 'power':
+        # Power scaling - penalizes low scores more, rewards normal-high scores
+        # Uses square (power=2) to create more separation in the lower range
+        for r in rankings.values():
+            if max_score - min_score > 0:
+                linear = (r.score - min_score) / (max_score - min_score)
+                r.fs_score = low + (linear ** 2) * (high - low)
+            else:
+                r.fs_score = 1
+    elif method == 'logpower':
+        # Combination: log to compress top outliers, then power to separate mid/low
+        for r in rankings.values():
+            if max_score - min_score > 0:
+                # First apply log compression
+                log_score = math.log(1 + r.score - min_score)
+                log_max = math.log(1 + max_score - min_score)
+                log_normalized = log_score / log_max
+                # Then apply power to create separation at lower end
+                r.fs_score = low + (log_normalized ** 1.5) * (high - low)
             else:
                 r.fs_score = 1
     else:
@@ -92,7 +113,7 @@ def null_filter(stat_name: str) -> bool:
     return True
 
 
-def get_all_land_sizes(round_number: int) -> dict:
+def get_all_land_sizes(round_number: int, stat_filter=None) -> dict:
     """Get land sizes for all players from cached stats.
 
     Args:
@@ -102,7 +123,7 @@ def get_all_land_sizes(round_number: int) -> dict:
         Dict of {player_name: land_size}
     """
     # Load all stats (should use cache if available)
-    all_stats = load_stats(round_number)
+    all_stats = load_stats(round_number, stat_filter=stat_filter)
 
     land_sizes = {}
 

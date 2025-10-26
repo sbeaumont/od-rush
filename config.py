@@ -19,9 +19,8 @@ v5_ratios = load_scoring_ratios('rush/rush_rankings_v5.json')
 v6_ratios = load_scoring_ratios('rush/rush_rankings_v6.json')
 
 ALL_BLOP_ROUNDS = {
-    # 69: v6_ratios, # Round 46
-    # 67: v5_ratios, # Round 45
-    67: v6_ratios, # Round 45
+    69: v6_ratios, # Round 46
+    67: v5_ratios, # Round 45
     66: v4_ratios, # Round 44
     64: v4_ratios, # Round 43
     63: v4_ratios, # Round 42

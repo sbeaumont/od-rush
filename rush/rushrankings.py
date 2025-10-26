@@ -45,12 +45,26 @@ def is_blop_stat(stat_name: str) -> bool:
     return False
 
 
+def is_dom_stat(stat_name: str) -> bool:
+    """Filter out realm, pack, and solo rankings - only include individual dominion stats."""
+    exclude_keywords = ['Realm', 'Pack', 'Solo']
+    for kw in exclude_keywords:
+        if kw in stat_name:
+            return False
+    return True
+
+
 def all_player_names(stats: dict) -> set:
     players = set()
     for stat in stats.values():
         players.update(stat.keys())
     players.discard("Bot")
     return players
+
+
+def sanitize_name_for_csv(name: str) -> str:
+    """Replace commas in player names with underscores to prevent CSV parsing issues."""
+    return name.replace(',', '_')
 
 
 def score_components(ratios: dict, stats: dict, name: str, land_sizes: dict = None) -> dict:
@@ -81,12 +95,14 @@ def score_components(ratios: dict, stats: dict, name: str, land_sizes: dict = No
             if penalty > 0:
                 min_land = min(land_sizes.values())
                 max_land = max(land_sizes.values())
+                threshold = score_component.get('small_land_penalty_threshold', None)
                 component_score = apply_low_land_penalty(
                     component_score,
                     land_sizes[name],
                     min_land,
                     max_land,
-                    penalty
+                    penalty,
+                    threshold
                 )
 
         result[component_name] = component_score
@@ -108,11 +124,11 @@ def blop_scores_for_round(ratios: dict, round_number: int, with_components=False
         for stat_name in component_config['rankings']:
             scaling_methods[stat_name] = scaling_style
 
-    stats = load_stats(round_number, scaling_methods=scaling_methods)
+    stats = load_stats(round_number, stat_filter=is_dom_stat, scaling_methods=scaling_methods)
     players = all_player_names(stats)
 
     # Get land sizes for known players only
-    all_land_sizes = get_all_land_sizes(round_number)
+    all_land_sizes = get_all_land_sizes(round_number, stat_filter=is_dom_stat)
     land_sizes = {player: land for player, land in all_land_sizes.items()
                   if player in players}
 
@@ -136,11 +152,12 @@ def round_scores(ratios: dict, round_number: int, out_dir: str, with_components=
             print([ratios[c]['weight'] for c in top_blop[0][2].keys()])
         for p in top_blop:
             player_name = p[0]
+            sanitized_name = sanitize_name_for_csv(player_name)
             land_size = all_land_sizes.get(player_name, 0)
             if with_components:
-                f.write(f"{player_name}, {land_size}, {p[1]}, {', '.join([str(v) for v in p[2].values()])}\n")
+                f.write(f"{sanitized_name}, {land_size}, {p[1]}, {', '.join([str(v) for v in p[2].values()])}\n")
             else:
-                f.write(f"{player_name}, {land_size}, {p[1]}\n")
+                f.write(f"{sanitized_name}, {land_size}, {p[1]}\n")
 
 
 class Player:
@@ -165,7 +182,7 @@ class Player:
         return ','.join(sorted_scores)
 
 
-def apply_low_land_penalty(score: float, player_land: float, min_land: float, max_land: float, max_penalty: float = 0.5) -> float:
+def apply_low_land_penalty(score: float, player_land: float, min_land: float, max_land: float, max_penalty: float = 0.5, threshold: float = None) -> float:
     """
     Apply gradual penalty to a single score based on land size.
     Uses a concave curve (square root) for more gradual penalty.
@@ -176,6 +193,9 @@ def apply_low_land_penalty(score: float, player_land: float, min_land: float, ma
         min_land: Minimum land size in the round
         max_land: Maximum land size in the round
         max_penalty: Maximum penalty to apply (e.g., 0.5 for 50% reduction at smallest size)
+        threshold: Optional land size threshold. If specified, no penalty is applied above this
+                  value, and penalty scales from 0% at threshold to max_penalty at min_land.
+                  If None, uses max_land as the threshold (original behavior).
 
     Returns:
         Adjusted score with penalty applied
@@ -184,19 +204,27 @@ def apply_low_land_penalty(score: float, player_land: float, min_land: float, ma
         raise ValueError(f"max_penalty must be >= 0, got {max_penalty}")
     if max_penalty == 0:
         return score  # No penalty configured
-    if max_land < min_land:
-        raise ValueError(f"max_land ({max_land}) must be >= min_land ({min_land})")
-    if max_land == min_land:
-        raise ValueError(f"max_land equals min_land ({max_land}) - invalid land data")
-    if player_land < min_land or player_land > max_land:
-        raise ValueError(f"player_land ({player_land}) outside range [{min_land}, {max_land}]")
 
-    # Land ratio: 0 at min_land, 1 at max_land
-    land_ratio = (player_land - min_land) / (max_land - min_land)
+    # Use threshold if specified, otherwise fall back to max_land
+    effective_max = threshold if threshold is not None else max_land
+
+    # No penalty if player is at or above threshold
+    if player_land >= effective_max:
+        return score
+
+    if effective_max < min_land:
+        raise ValueError(f"effective_max ({effective_max}) must be >= min_land ({min_land})")
+    if effective_max == min_land:
+        raise ValueError(f"effective_max equals min_land ({effective_max}) - invalid land data")
+    if player_land < min_land:
+        raise ValueError(f"player_land ({player_land}) is below min_land ({min_land})")
+
+    # Land ratio: 0 at min_land, 1 at effective_max
+    land_ratio = (player_land - min_land) / (effective_max - min_land)
 
     # Concave curve using square root
     # At min land (ratio=0): sqrt(0) = 0 → multiplier = 1 - max_penalty
-    # At max land (ratio=1): sqrt(1) = 1 → multiplier = 1
+    # At effective_max (ratio=1): sqrt(1) = 1 → multiplier = 1
     multiplier = 1.0 - max_penalty * (1 - land_ratio ** 0.5)
 
     return score * multiplier
@@ -215,5 +243,6 @@ def multiple_round_scores(ratio_versions_per_round: dict, round_numbers: list | 
 
     with open(f'{out_dir}/R{round_numbers[0]} Last {len(round_numbers)} Rounds - full.txt', 'w') as f:
         for player in top_blop_sorted:
-            f.write(f"{player.name},{player.total_score},{player.average_score},{player.scores_text()}\n")
+            sanitized_name = sanitize_name_for_csv(player.name)
+            f.write(f"{sanitized_name},{player.total_score},{player.average_score},{player.scores_text()}\n")
 
