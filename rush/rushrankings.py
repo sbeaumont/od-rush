@@ -67,37 +67,37 @@ def sanitize_name_for_csv(name: str) -> str:
     return name.replace(',', '_')
 
 
-def score_components(ratios: dict, stats: dict, name: str, land_sizes: dict = None) -> dict:
-    """Score a specific player on all components of the scoring system for the round."""
+def score_categories(ratios: dict, stats: dict, name: str, land_sizes: dict = None) -> dict:
+    """Score a specific player on all categories of the scoring system for the round."""
     result = dict()
-    for component_name, score_component in ratios.items():
-        component_score = 0
-        if score_component['calculation'] == 'average':
+    for category_name, score_category in ratios.items():
+        category_score = 0
+        if score_category['calculation'] == 'average':
             total = 0
-            for stat_name in score_component['rankings']:
+            for stat_name in score_category['rankings']:
                 if name in stats[stat_name]:
                     total += stats[stat_name][name].fs_score
-            component_score = total / len(score_component['rankings']) * score_component['weight']
-        elif re.fullmatch(r'average of best (\d+)', score_component['calculation']):
-            best = int(re.search(r'average of best (\d+)', score_component['calculation']).group(1))
+            category_score = total / len(score_category['rankings']) * score_category['weight']
+        elif re.fullmatch(r'average of best (\d+)', score_category['calculation']):
+            best = int(re.search(r'average of best (\d+)', score_category['calculation']).group(1))
             ranking_scores = list()
-            for stat_name in score_component['rankings']:
+            for stat_name in score_category['rankings']:
                 if name in stats[stat_name]:
                     ranking_scores.append(stats[stat_name][name].fs_score)
             best_scores = sorted(ranking_scores, reverse=True)[:best]
-            component_score = sum(best_scores) / best * score_component['weight']
+            category_score = sum(best_scores) / best * score_category['weight']
         else:
-            raise Exception(f"Unknown calculation method: {score_component['calculation']}")
+            raise Exception(f"Unknown calculation method: {score_category['calculation']}")
 
         # Apply small-land penalty if relevant
-        if land_sizes and name in land_sizes and 'small_land_max_penalty' in score_component:
-            penalty = score_component['small_land_max_penalty']
+        if land_sizes and name in land_sizes and 'small_land_max_penalty' in score_category:
+            penalty = score_category['small_land_max_penalty']
             if penalty > 0:
                 min_land = min(land_sizes.values())
                 max_land = max(land_sizes.values())
-                threshold = score_component.get('small_land_penalty_threshold', None)
-                component_score = apply_low_land_penalty(
-                    component_score,
+                threshold = score_category.get('small_land_penalty_threshold', None)
+                category_score = apply_low_land_penalty(
+                    category_score,
                     land_sizes[name],
                     min_land,
                     max_land,
@@ -105,23 +105,23 @@ def score_components(ratios: dict, stats: dict, name: str, land_sizes: dict = No
                     threshold
                 )
 
-        result[component_name] = component_score
+        result[category_name] = category_score
     return result
 
 
 def calculate_player_score(ratios: dict, stats: dict, name: str, land_sizes: dict = None) -> float:
-    """The player's total score is the sum total of all the scoring components."""
-    player_score = sum([cs for cs in score_components(ratios, stats, name, land_sizes).values()])
+    """The player's total score is the sum total of all the scoring categories."""
+    player_score = sum([cs for cs in score_categories(ratios, stats, name, land_sizes).values()])
     return round(player_score, 3)
 
 
-def blop_scores_for_round(ratios: dict, round_number: int, with_components=False) -> list:
+def blop_scores_for_round(ratios: dict, round_number: int, with_categories=False) -> list:
     """Calculate the scores for all players in a specific round."""
     # Build scaling methods dict from ratios config
     scaling_methods = {}
-    for component_name, component_config in ratios.items():
-        scaling_style = component_config.get('scaling_style', 'linear')
-        for stat_name in component_config['rankings']:
+    for category_name, category_config in ratios.items():
+        scaling_style = category_config.get('scaling_style', 'linear')
+        for stat_name in category_config['rankings']:
             scaling_methods[stat_name] = scaling_style
 
     stats = load_stats(round_number, stat_filter=is_dom_stat, scaling_methods=scaling_methods)
@@ -132,29 +132,29 @@ def blop_scores_for_round(ratios: dict, round_number: int, with_components=False
     land_sizes = {player: land for player, land in all_land_sizes.items()
                   if player in players}
 
-    if with_components:
-        return [(player, calculate_player_score(ratios, stats, player, land_sizes), score_components(ratios, stats, player, land_sizes)) for player in players]
+    if with_categories:
+        return [(player, calculate_player_score(ratios, stats, player, land_sizes), score_categories(ratios, stats, player, land_sizes)) for player in players]
     else:
         return [(player, calculate_player_score(ratios, stats, player, land_sizes)) for player in players]
 
 
-def round_scores(ratios: dict, round_number: int, out_dir: str, with_components=False):
+def round_scores(ratios: dict, round_number: int, out_dir: str, with_categories=False):
     """Output the round scores in a CSV format that can be imported into a spreadsheet."""
-    blop_scores = blop_scores_for_round(ratios, round_number, with_components)
+    blop_scores = blop_scores_for_round(ratios, round_number, with_categories)
     top_blop = sorted(blop_scores, key=lambda e: e[1], reverse=True)
 
     # Get land sizes for all players
     all_land_sizes = get_all_land_sizes(round_number)
 
-    with open(f'{out_dir}/Top (Black) Oppers Round {round_number}{" (Comps)" if with_components else ""}.txt', 'w') as f:
-        if with_components:
+    with open(f'{out_dir}/Top (Black) Oppers Round {round_number}{" (Cats)" if with_categories else ""}.txt', 'w') as f:
+        if with_categories:
             print(top_blop[0][2].keys())
             print([ratios[c]['weight'] for c in top_blop[0][2].keys()])
         for p in top_blop:
             player_name = p[0]
             sanitized_name = sanitize_name_for_csv(player_name)
             land_size = all_land_sizes.get(player_name, 0)
-            if with_components:
+            if with_categories:
                 f.write(f"{sanitized_name}, {land_size}, {p[1]}, {', '.join([str(v) for v in p[2].values()])}\n")
             else:
                 f.write(f"{sanitized_name}, {land_size}, {p[1]}\n")

@@ -9,7 +9,7 @@ from config import OUT_DIR, ALL_BLOP_ROUNDS, ALL_ROUNDS, LAST_TEN_ROUNDS, LAST_R
 
 
 def single_round(round_number: int):
-    round_scores(ALL_BLOP_ROUNDS[round_number], round_number, OUT_DIR, with_components=True)
+    round_scores(ALL_BLOP_ROUNDS[round_number], round_number, OUT_DIR, with_categories=True)
 
 
 def main():

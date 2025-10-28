@@ -2,7 +2,7 @@
 
 ## Columns of each file
 
-**Single Round with components**
+**Single Round with categories**
 
 Name, Total Score, Mastery, Ops, Theft, Blackops, War, Assassination, Fireball
 
