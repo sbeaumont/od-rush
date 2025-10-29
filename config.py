@@ -6,46 +6,46 @@ OD_BASE = 'https://www.opendominion.net'
 VALHALLA_URL = f'{OD_BASE}/valhalla/round'
 
 
-def load_scoring_ratios(filename: str):
+def load_scoring_config(filename: str):
     with open(filename) as f:
         return json.load(f)
 
 
-v1_ratios = load_scoring_ratios('rush/rush_rankings_v1.json')
-v2_ratios = load_scoring_ratios('rush/rush_rankings_v2.json')
-v3_ratios = load_scoring_ratios('rush/rush_rankings_v3.json')
-v4_ratios = load_scoring_ratios('rush/rush_rankings_v4.json')
-v5_ratios = load_scoring_ratios('rush/rush_rankings_v5.json')
-v6_ratios = load_scoring_ratios('rush/rush_rankings_v6.json')
+v1_config = load_scoring_config('rush/rush_rankings_v1.json')
+v2_config = load_scoring_config('rush/rush_rankings_v2.json')
+v3_config = load_scoring_config('rush/rush_rankings_v3.json')
+v4_config = load_scoring_config('rush/rush_rankings_v4.json')
+v5_config = load_scoring_config('rush/rush_rankings_v5.json')
+v6_config = load_scoring_config('rush/rush_rankings_v6.json')
 
 ALL_BLOP_ROUNDS = {
-    69: v6_ratios, # Round 46
-    67: v5_ratios, # Round 45
-    66: v4_ratios, # Round 44
-    64: v4_ratios, # Round 43
-    63: v4_ratios, # Round 42
-    61: v4_ratios, # Round 41
-    60: v4_ratios,
-    58: v4_ratios,
-    56: v3_ratios,
-    54: v2_ratios,
-    52: v2_ratios,
-    51: v1_ratios,
-    49: v1_ratios,
-    48: v1_ratios,
-    47: v1_ratios,
-    45: v1_ratios,
-    44: v1_ratios,
-    42: v1_ratios,
-    41: v1_ratios,
-    39: v1_ratios,
-    38: v1_ratios,
-    36: v1_ratios,
-    35: v1_ratios,
-    33: v1_ratios,
-    30: v1_ratios,
-    28: v1_ratios,
-    26: v1_ratios
+    69: v6_config, # Round 46
+    67: v5_config, # Round 45
+    66: v4_config, # Round 44
+    64: v4_config, # Round 43
+    63: v4_config, # Round 42
+    61: v4_config, # Round 41
+    60: v4_config,
+    58: v4_config,
+    56: v3_config,
+    54: v2_config,
+    52: v2_config,
+    51: v1_config,
+    49: v1_config,
+    48: v1_config,
+    47: v1_config,
+    45: v1_config,
+    44: v1_config,
+    42: v1_config,
+    41: v1_config,
+    39: v1_config,
+    38: v1_config,
+    36: v1_config,
+    35: v1_config,
+    33: v1_config,
+    30: v1_config,
+    28: v1_config,
+    26: v1_config
 }
 
 ALL_ROUNDS: list[int] = sorted(ALL_BLOP_ROUNDS.keys(), reverse=True)

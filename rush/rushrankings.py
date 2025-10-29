@@ -67,10 +67,10 @@ def sanitize_name_for_csv(name: str) -> str:
     return name.replace(',', '_')
 
 
-def score_categories(ratios: dict, stats: dict, name: str, land_sizes: dict = None) -> dict:
+def score_categories(config: dict, stats: dict, name: str, land_sizes: dict = None) -> dict:
     """Score a specific player on all categories of the scoring system for the round."""
     result = dict()
-    for category_name, score_category in ratios.items():
+    for category_name, score_category in config.items():
         category_score = 0
         if score_category['calculation'] == 'average':
             total = 0
@@ -109,17 +109,17 @@ def score_categories(ratios: dict, stats: dict, name: str, land_sizes: dict = No
     return result
 
 
-def calculate_player_score(ratios: dict, stats: dict, name: str, land_sizes: dict = None) -> float:
+def calculate_player_score(config: dict, stats: dict, name: str, land_sizes: dict = None) -> float:
     """The player's total score is the sum total of all the scoring categories."""
-    player_score = sum([cs for cs in score_categories(ratios, stats, name, land_sizes).values()])
+    player_score = sum([cs for cs in score_categories(config, stats, name, land_sizes).values()])
     return round(player_score, 3)
 
 
-def blop_scores_for_round(ratios: dict, round_number: int, with_categories=False) -> list:
+def blop_scores_for_round(config: dict, round_number: int, with_categories=False) -> list:
     """Calculate the scores for all players in a specific round."""
-    # Build scaling methods dict from ratios config
+    # Build scaling methods dict from config
     scaling_methods = {}
-    for category_name, category_config in ratios.items():
+    for category_name, category_config in config.items():
         scaling_style = category_config.get('scaling_style', 'linear')
         for stat_name in category_config['rankings']:
             scaling_methods[stat_name] = scaling_style
@@ -133,14 +133,14 @@ def blop_scores_for_round(ratios: dict, round_number: int, with_categories=False
                   if player in players}
 
     if with_categories:
-        return [(player, calculate_player_score(ratios, stats, player, land_sizes), score_categories(ratios, stats, player, land_sizes)) for player in players]
+        return [(player, calculate_player_score(config, stats, player, land_sizes), score_categories(config, stats, player, land_sizes)) for player in players]
     else:
-        return [(player, calculate_player_score(ratios, stats, player, land_sizes)) for player in players]
+        return [(player, calculate_player_score(config, stats, player, land_sizes)) for player in players]
 
 
-def round_scores(ratios: dict, round_number: int, out_dir: str, with_categories=False):
+def round_scores(config: dict, round_number: int, out_dir: str, with_categories=False):
     """Output the round scores in a CSV format that can be imported into a spreadsheet."""
-    blop_scores = blop_scores_for_round(ratios, round_number, with_categories)
+    blop_scores = blop_scores_for_round(config, round_number, with_categories)
     top_blop = sorted(blop_scores, key=lambda e: e[1], reverse=True)
 
     # Get land sizes for all players
@@ -149,7 +149,7 @@ def round_scores(ratios: dict, round_number: int, out_dir: str, with_categories=
     with open(f'{out_dir}/Top (Black) Oppers Round {round_number}{" (Cats)" if with_categories else ""}.txt', 'w') as f:
         if with_categories:
             print(top_blop[0][2].keys())
-            print([ratios[c]['weight'] for c in top_blop[0][2].keys()])
+            print([config[c]['weight'] for c in top_blop[0][2].keys()])
         for p in top_blop:
             player_name = p[0]
             sanitized_name = sanitize_name_for_csv(player_name)
@@ -230,11 +230,11 @@ def apply_low_land_penalty(score: float, player_land: float, min_land: float, ma
     return score * multiplier
 
 
-def multiple_round_scores(ratio_versions_per_round: dict, round_numbers: list | tuple, out_dir: str):
+def multiple_round_scores(config_versions_per_round: dict, round_numbers: list | tuple, out_dir: str):
     player_scores = dict()
     for nr in round_numbers:
         print(f'== ROUND {nr} ==')
-        blop_scores = blop_scores_for_round(ratio_versions_per_round[nr], nr)
+        blop_scores = blop_scores_for_round(config_versions_per_round[nr], nr)
         for player, score in blop_scores:
             if player not in player_scores:
                 player_scores[player] = Player(player, round_numbers)
